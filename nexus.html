@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern AI Search Interface</title>
+    <style>
+        /* Modern Reset and Typography */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        /* Main Layout Container */
+        .app-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            width: 280px;
+            background: rgba(15, 15, 35, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+            gap: 32px;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Sidebar Sections */
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 12px;
+            margin-bottom: 8px;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .brand-text {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        /* New Chat Button */
+        .new-chat-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .new-chat-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+        }
+
+        .new-chat-btn .icon {
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #667eea;
+        }
+
+        /* Navigation Items */
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #a5b4fc;
+            box-shadow: inset 3px 0 0 #667eea;
+        }
+
+        .nav-item .icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            opacity: 0.8;
+        }
+
+        /* Bottom Section */
+        .sidebar-bottom {
+            margin-top: auto;
+        }
+
+        .account-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .account-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .account-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Background Elements */
+        .bg-decoration {
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .bg-circle-1 {
+            top: 10%;
+            right: 15%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bg-circle-2 {
+            bottom: 20%;
+            left: 10%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(118, 75, 162, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        /* Logo Section */
+        .logo-section {
+            text-align: center;
+            margin-bottom: 48px;
+            z-index: 2;
+        }
+
+        .logo-text {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -2px;
+        }
+
+        .pro-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #4ade80 0%, #22d3ee 100%);
+            color: #0f172a;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-left: 12px;
+            box-shadow: 0 4px 16px rgba(74, 222, 128, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .tagline {
+            color: #94a3b8;
+            font-size: 18px;
+            font-weight: 400;
+            margin-top: 16px;
+        }
+
+        /* Enhanced Search Container */
+        .search-container {
+            width: 100%;
+            max-width: 700px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .search-wrapper {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-wrapper:focus-within {
+            border-color: rgba(102, 126, 234, 0.5);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(102, 126, 234, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #f8fafc;
+            font-size: 18px;
+            line-height: 1.6;
+            resize: none;
+            min-height: 24px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .search-input::placeholder {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        /* Search Actions */
+        .search-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #94a3b8;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+
+        .submit-btn {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .submit-btn .icon {
+            color: white;
+            font-size: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 240px;
+                padding: 16px 12px;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .logo-text {
+                font-size: 36px;
+            }
+            
+            .search-wrapper {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                padding: 12px;
+                gap: 16px;
+                overflow-x: auto;
+            }
+            
+            .sidebar-section {
+                flex-direction: row;
+                min-width: max-content;
+            }
+            
+            .sidebar-bottom {
+                margin-top: 0;
+                margin-left: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Enhanced Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">⚡</div>
+                    <span class="brand-text">nexus</span>
+                </div>
+                
+                <button class="new-chat-btn">
+                    <div class="icon">+</div>
+                    <span>New Chat</span>
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="nav-item active">
+                    <div class="icon">🏠</div>
+                    <span>Home</span>
+                </div>
+                <div class="nav-item">
+                    <div class="icon">🧭</div>
+                    <span>Discover</span>
+                </div>
+                <div class="nav-item">
+                    <div class="icon">📚</div>
+                    <span>Library</span>
+                </div>
+                <div class="nav-item">
+                    <div class="icon">⭐</div>
+                    <span>Favorites</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-bottom">
+                <div class="nav-item">
+                    <div class="icon">⚙️</div>
+                    <span>Settings</span>
+                </div>
+                <div class="nav-item">
+                    <div class="icon">💎</div>
+                    <span>Upgrade</span>
+                </div>
+                <div class="account-item">
+                    <div class="account-avatar">M</div>
+                    <span>Account</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Background Decorations -->
+            <div class="bg-decoration bg-circle-1"></div>
+            <div class="bg-decoration bg-circle-2"></div>
+            
+            <!-- Logo Section -->
+            <div class="logo-section">
+                <h1 class="logo-text">
+                    nexus
+                    <span class="pro-badge">✨ PRO</span>
+                </h1>
+                <p class="tagline">Discover knowledge with AI-powered search</p>
+            </div>
+
+            <!-- Enhanced Search Container -->
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <textarea 
+                        class="search-input" 
+                        placeholder="Ask anything or @mention a Space..."
+                        rows="1"
+                    ></textarea>
+                    
+                    <div class="search-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn" title="Attach file">📎</button>
+                            <button class="action-btn" title="Voice input">🎤</button>
+                            <button class="action-btn" title="Camera">📷</button>
+                        </div>
+                        <button class="submit-btn" title="Send message">
+                            <div class="icon">→</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Auto-resize textarea
+        const textarea = document.querySelector('.search-input');
+        
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Handle search submission
+        document.querySelector('.submit-btn').addEventListener('click', function() {
+            const query = textarea.value.trim();
+            if (query) {
+                console.log('Search query:', query);
+                // Add your search logic here
+                textarea.value = '';
+                textarea.style.height = 'auto';
+            }
+        });
+
+        // Handle Enter key
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                document.querySelector('.submit-btn').click();
+            }
+        });
+
+        // Add floating animation to background elements
+        document.querySelectorAll('.bg-decoration').forEach((el, index) => {
+            el.style.animationDelay = `${index * 2}s`;
+        });
+    </script>
+</body>
+</html>
